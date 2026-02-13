@@ -1,22 +1,13 @@
 <?php
 require_once "db.php";
 
-/* ===============================
-   SESSION (Enable Later)
-================================ */
-// session_start();
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
-// $user_id = $_SESSION['user_id'];
 
 $user_id = 1; // Temporary for testing
 
 
-/* =====================================================
-   1️⃣ FETCH CAREER READINESS SCORE
-===================================================== */
+
+   //FETCH CAREER READINESS SCORE
+
 $stmt = $pdo->prepare("
     SELECT gap_score
     FROM skill_gap_results
@@ -29,9 +20,7 @@ $stmt->execute([$user_id]);
 $readiness = (int)($stmt->fetchColumn() ?? 0);
 
 
-/* =====================================================
-   2️⃣ FETCH PROGRESS SUMMARY
-===================================================== */
+   // FETCH PROGRESS SUMMARY
 $stmt = $pdo->prepare("
     SELECT
         COUNT(*) FILTER (WHERE status = 'Completed')   AS completed,
@@ -55,9 +44,9 @@ $completion_percent = $total > 0
     : 0;
 
 
-/* =====================================================
-   3️⃣ FETCH SKILL PROGRESS
-===================================================== */
+
+   // FETCH SKILL PROGRESS
+
 $stmt = $pdo->prepare("
     SELECT r.skill_name, up.progress_percent
     FROM user_progress up
@@ -89,7 +78,7 @@ foreach ($skills as $row) {
 
 <body>
 
-<!-- ================= HEADER ================= -->
+
 <div class="header">
     <h1>Gap2Grow</h1>
     <p>Learning Progress Dashboard</p>
@@ -97,7 +86,7 @@ foreach ($skills as $row) {
 
 <div class="container">
 
-    <!-- INTRO CARD -->
+    
     <div class="card intro-card">
         <h3>📊 My Progress Dashboard</h3>
         <p>
@@ -109,7 +98,7 @@ foreach ($skills as $row) {
 
     <div class="grid">
 
-        <!-- KPI -->
+  
         <div class="card">
             <h4>Overall Skill Completion</h4>
             <div class="kpi-number">
@@ -117,7 +106,7 @@ foreach ($skills as $row) {
             </div>
         </div>
 
-        <!-- READINESS -->
+      
         <div class="card">
             <h4>Career Readiness</h4>
             <div class="chart-box">
@@ -125,7 +114,7 @@ foreach ($skills as $row) {
             </div>
         </div>
 
-        <!-- STATUS -->
+        
         <div class="card">
             <h4>Status Distribution</h4>
             <div class="chart-box">
@@ -133,7 +122,7 @@ foreach ($skills as $row) {
             </div>
         </div>
 
-        <!-- SKILLS -->
+      
         <div class="card">
             <h4>Skill Progress</h4>
             <div class="chart-box">
@@ -149,12 +138,11 @@ foreach ($skills as $row) {
 </div>
 
 
-<!-- ================= CHARTS ================= -->
 <script>
 
 const readinessValue = <?= $readiness ?>;
 
-/* ================= READINESS DOUGHNUT ================= */
+
 new Chart(document.getElementById('readinessChart'), {
     type: 'doughnut',
     data: {
@@ -190,7 +178,7 @@ new Chart(document.getElementById('readinessChart'), {
 });
 
 
-/* ================= STATUS PIE ================= */
+
 new Chart(document.getElementById('statusChart'), {
     type: 'pie',
     data: {
@@ -212,7 +200,7 @@ new Chart(document.getElementById('statusChart'), {
 });
 
 
-/* ================= SKILL BAR ================= */
+
 new Chart(document.getElementById('skillChart'), {
     type: 'bar',
     data: {

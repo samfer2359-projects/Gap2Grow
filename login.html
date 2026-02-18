@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+<div class="page-wrapper">
+    <p class="top-message">Welcome back. Let’s keep growing :)</p>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form onsubmit="return loginUser(event)">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
+
+    </div>
+    </div>
+
+    <script>
+        function loginUser(event) {
+            event.preventDefault(); // stops page refresh
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            // simple frontend check (you can skip or edit)
+            if (username && password) {
+                // Save username to localStorage (so we can use it on welcome page)
+                localStorage.setItem("username", username);
+
+                // Redirect to welcome page
+                window.location.href = "welcome.html";
+            } else {
+                alert("Please enter both username and password!");
+            }
+
+            return false; // prevents form's default submission
+        }
+    </script>
+
+</body>
+
+</html>

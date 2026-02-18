@@ -1,0 +1,126 @@
+/* Body Background */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* IMPORTANT — removes scroll */
+  position: relative;
+}
+
+
+/* Soft Glow Effect */
+body::before {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(79,70,229,0.15), transparent 70%);
+  top: -100px;
+  right: -100px;
+  z-index: 0;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.top-message {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #4f46e5;
+  font-weight: 500;
+}
+
+
+
+/* Main Card */
+.login-container {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  width: 380px;
+  padding: 35px 35px;  /* slightly reduced */
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.15);
+  text-align: center;
+}
+
+/* Heading */
+.login-container h2 {
+  margin-bottom: 15px;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+/* Labels */
+label {
+  display: block;
+  text-align: left;
+  margin-bottom: 6px;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #475569;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #c7d2fe;
+  outline: none;
+  transition: 0.3s ease;
+  font-size: 14px;
+}
+
+input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Main Button */
+button[type="submit"] {
+  width: 100%;
+  margin-top: 25px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #4f46e5;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+
+button[type="submit"]:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+}
+
+/* Links */
+.login-container p {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.login-container a {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-container a:hover {
+  text-decoration: underline;
+}
+

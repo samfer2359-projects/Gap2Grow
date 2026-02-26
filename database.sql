@@ -81,3 +81,20 @@ CREATE TABLE user_progress (
         REFERENCES recommendations(recommendation_id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE skill_resources (
+    resource_id SERIAL PRIMARY KEY,
+    skill_name VARCHAR(100),
+    platform VARCHAR(100),
+    resource_title VARCHAR(200),
+    resource_link TEXT,
+    difficulty VARCHAR(50)
+);
+
+CREATE TABLE learning_roadmaps (
+    roadmap_id SERIAL PRIMARY KEY,
+    user_id INT,
+    job_id INT,
+    roadmap_text TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

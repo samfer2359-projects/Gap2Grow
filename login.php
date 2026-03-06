@@ -1,6 +1,7 @@
 <?php
 session_start();
-require '../db.php';
+require 'db.php';
+
 $email = $_POST['email'];
 $password = $_POST['password'];
 
@@ -10,14 +11,16 @@ $stmt->execute([':email' => $email]);
 
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($user && $password == $user['password']) {
+if ($user && password_verify($password, $user['password'])) {
 
     $_SESSION['user_id'] = $user['user_id'];
     $_SESSION['name'] = $user['name'];
 
-    echo "Login successful";
+    // Redirect to welcome page
+    header("Location: welcome.php");
+    exit();
 
 } else {
-    echo "Invalid email or password";
+    die("Invalid email or password");
 }
 ?>

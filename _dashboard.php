@@ -2,7 +2,8 @@
 require_once "db.php";
 
 
-$user_id = 1; // Temporary for testing
+session_start();
+$user_id = $_SESSION['user_id'];
 
 
 

@@ -2,8 +2,7 @@
 require_once "db.php";
 session_start();
 
-// Temporary testing user ID; replace with actual session user ID after integration
-$user_id = 3;
+$user_id = $_SESSION['user_id'];
 
 // Fetch recommendations for user
 $stmt = $pdo->prepare("

@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Run Python Script
     $command = "python module2.py $user_id \"$job_title\"";
     shell_exec($command);
+    shell_exec("python recommendation_engine.py $user_id");
 
     // Fetch latest result
     $query = "

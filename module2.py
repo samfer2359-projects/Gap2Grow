@@ -210,11 +210,16 @@ class SkillGapAnalyzer:
 # Example Run
 # -------------------------------------------------------
 
+import sys
+
 if __name__ == "__main__":
 
+    user_id = int(sys.argv[1])
+    job_title = sys.argv[2]
+
     analyzer = SkillGapAnalyzer(
-        user_id=2,
-        job_title="Data Analyst"
+        user_id=user_id,
+        job_title=job_title
     )
 
     result = analyzer.analyze()

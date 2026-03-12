@@ -1,0 +1,187 @@
+body{
+    background: linear-gradient(135deg,#eef2ff,#e0e7ff);
+    font-family:'Segoe UI', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    margin:0;
+}
+
+/* Vertical rectangle card */
+form{
+    background:white;
+    padding:60px 70px;
+    width:420px;
+    min-height:520px;
+    border-radius:18px;
+    box-shadow:0 12px 28px rgba(79,70,229,0.12);
+    text-align:center;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+/* Title */
+h2{
+    color:#4f46e5;
+    font-size:34px;
+    margin-bottom:10px;
+}
+
+/* Step indicator */
+#stepIndicator{
+    width:420px;        /* same as card width */
+    text-align:left;
+    font-size:20px;
+    color:#4f46e5;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+.form-wrapper{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+/* Question */
+.step h3{
+    margin-top:40px;
+    margin-bottom:35px;
+    color:#475569;
+    font-size:24px;
+}
+
+/* Options container */
+.step label{
+    display:block;
+    text-align:left;      /* only options left aligned */
+    margin:12px auto;
+    font-size:18px;
+    width:70%;
+    color:#334155;
+}
+
+/* Input field */
+input[type="text"]{
+    width:80%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #cbd5f5;
+    font-size:17px;
+    margin-top:10px;
+}
+
+/* Buttons */
+button{
+    padding:12px 26px;
+    border:none;
+    border-radius:10px;
+    margin-top:30px;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.form-buttons{
+    margin-top:auto;
+    display:flex;
+    justify-content:center;
+    gap:30px;   /* increase space between buttons */
+}
+
+select{
+    width: 65%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #cbd5f5;
+    background-color: white;
+    color: #334155;
+    outline: none;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+select:focus{
+    border-color: #4f46e5;
+    box-shadow: 0 0 4px rgba(79,70,229,0.2);
+}
+
+/* Next + Submit */
+#nextBtn,#submitBtn{
+    background:#4f46e5;
+    color:white;
+}
+
+/* Previous */
+#prevBtn{
+    background:#e0e7ff;
+    color:#4f46e5;
+}
+
+/* Hover */
+button:hover{
+    opacity:0.9;
+}
+
+#nextBtn:hover, #confirmBtn:hover{
+    background:#e0e7ff;
+    color:#4f46e5;
+    transition: all 0.25s ease;
+}
+.popup-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.35);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:1000;
+}
+
+.popup-box{
+background:white;
+padding:30px 40px;
+border-radius:14px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.popup-buttons{
+margin-top:20px;
+display:flex;
+gap:20px;
+justify-content:center;
+}
+
+.popup-buttons button{
+padding:10px 22px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+#confirmBtn{
+background:#4f46e5;
+color:white;
+}
+
+#cancelBtn{
+background:#e0e7ff;
+color:#4f46e5;
+}
+
+#okBtn{
+background:#4f46e5;
+color:white;
+}
+
+#okBtn:hover{
+background:#e0e7ff;
+color:#4f46e5;
+transition: all 0.25s ease;
+}

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Skill Profile</title>
+    <link rel="stylesheet" href="skill_form.css">
+</head>
+
+<body>
+    <div class="form-wrapper">
+        <p id="stepIndicator"></p>
+        <form id="skillForm" action="skill_profile.php" method="POST">
+
+            <h2>Gap2Grow Skill Profile</h2>
+
+            <!-- STEP 1 -->
+            <div class="step">
+
+                <h3>Select Your Education Level</h3>
+
+                <label><input type="radio" name="education" value="High School" required> High School</label>
+                <label><input type="radio" name="education" value="Diploma"> Diploma</label>
+                <label><input type="radio" name="education" value="Bachelor"> Bachelor's Degree</label>
+                <label><input type="radio" name="education" value="Master"> Master's Degree</label>
+
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step" style="display:none">
+
+                <h3>What is your Field of Study?</h3>
+
+                <select name="field_of_study">
+
+                    <option value="">Select your field</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Business">Business</option>
+                    <option value="Other">Other</option>
+
+                </select>
+
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="step" style="display:none">
+
+                <h3>Select Your Skills</h3>
+
+                <label><input type="checkbox" name="skill_name[]" value="Python"> Python</label>
+                <label><input type="checkbox" name="skill_name[]" value="SQL"> SQL</label>
+                <label><input type="checkbox" name="skill_name[]" value="Java"> Java</label>
+                <label><input type="checkbox" name="skill_name[]" value="HTML"> HTML</label>
+                <label><input type="checkbox" name="skill_name[]" value="CSS"> CSS</label>
+                <label><input type="checkbox" name="skill_name[]" value="JavaScript"> JavaScript</label>
+
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="step" style="display:none">
+
+                <h3>How did you gain this skill?</h3>
+
+                <label><input type="radio" name="skill_type" value="Education"> Education</label>
+                <label><input type="radio" name="skill_type" value="Job"> Job</label>
+                <label><input type="radio" name="skill_type" value="Experience"> Experience</label>
+
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="step" style="display:none">
+
+                <h3>How proficient are you in this skill?</h3>
+
+                <label><input type="radio" name="proficiency" value="1"> 1 — Beginner</label>
+                <label><input type="radio" name="proficiency" value="2"> 2 — Basic</label>
+                <label><input type="radio" name="proficiency" value="3"> 3 — Intermediate</label>
+                <label><input type="radio" name="proficiency" value="4"> 4 — Advanced</label>
+                <label><input type="radio" name="proficiency" value="5"> 5 — Expert</label>
+
+            </div>
+
+            <!-- STEP 6 -->
+            <div class="step" style="display:none">
+
+                <h3>What job role do you want to pursue?</h3>
+
+                <label><input type="radio" name="target_role" value="Data Analyst"> Data Analyst</label>
+                <label><input type="radio" name="target_role" value="Web Developer"> Web Developer</label>
+                <label><input type="radio" name="target_role" value="Software Developer"> Software Developer</label>
+                <label><input type="radio" name="target_role" value="AI Engineer"> AI / ML Engineer</label>
+                <label><input type="radio" name="target_role" value="Cyber Security Analyst"> Cyber Security
+                    Analyst</label>
+
+            </div>
+
+            <br>
+
+            <div class="form-buttons">
+
+                <button type="button" id="prevBtn" onclick="changeStep(-1)" style="display:none">
+                    Previous
+                </button>
+
+                <button type="button" id="nextBtn" onclick="changeStep(1)">
+                    Next
+                </button>
+
+                <button type="submit" id="submitBtn" style="display:none">
+                    Submit
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+
+    <div id="confirmPopup" class="popup-overlay">
+
+        <div class="popup-box">
+
+            <p>Are you sure you want to submit your profile?</p>
+
+            <div class="popup-buttons">
+                <button type="button" id="cancelBtn">Cancel</button>
+                <button id="confirmBtn">Submit</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="validationPopup" class="popup-overlay">
+
+        <div class="popup-box">
+
+            <p>Please select an option before proceeding.</p>
+
+            <div class="popup-buttons">
+                <button type="button" id="okBtn">OK</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+
+        let currentStep = 0;
+        let steps = document.getElementsByClassName("step");
+
+        function showStep(n) {
+
+            for (let i = 0; i < steps.length; i++) {
+                steps[i].style.display = "none";
+            }
+
+            steps[n].style.display = "block";
+
+            document.getElementById("stepIndicator").innerText =
+                "Step " + (n + 1) + " of " + steps.length;
+
+            document.getElementById("prevBtn").style.display =
+                n === 0 ? "none" : "inline";
+
+            if (n === steps.length - 1) {
+
+                document.getElementById("nextBtn").style.display = "none";
+                document.getElementById("submitBtn").style.display = "inline";
+
+            } else {
+
+                document.getElementById("nextBtn").style.display = "inline";
+                document.getElementById("submitBtn").style.display = "none";
+
+            }
+
+        }
+
+        let validationPopup = document.getElementById("validationPopup");
+        let okBtn = document.getElementById("okBtn");
+
+        function validateStep() {
+
+            let current = steps[currentStep];
+            let inputs = current.querySelectorAll("input, select");
+            let valid = false;
+
+            for (let i = 0; i < inputs.length; i++) {
+
+                if (inputs[i].type === "radio" || inputs[i].type === "checkbox") {
+                    if (inputs[i].checked) {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                else if (inputs[i].tagName === "SELECT") {
+                    if (inputs[i].value !== "") {
+                        valid = true;
+                        break;
+                    }
+                }
+
+            }
+
+            if (!valid) {
+                validationPopup.style.display = "flex";
+            }
+
+            return valid;
+        }
+
+        okBtn.addEventListener("click", function () {
+            validationPopup.style.display = "none";
+        });
+        function changeStep(n) {
+
+            if (n === 1 && !validateStep()) {
+                return;
+            }
+
+            currentStep += n;
+
+            if (currentStep < 0) currentStep = 0;
+            if (currentStep >= steps.length) currentStep = steps.length - 1;
+
+            showStep(currentStep);
+
+        }
+
+        showStep(currentStep);
+
+        let form = document.getElementById("skillForm");
+        let popup = document.getElementById("confirmPopup");
+        let confirmBtn = document.getElementById("confirmBtn");
+        let cancelBtn = document.getElementById("cancelBtn");
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            popup.style.display = "flex";
+        });
+
+        confirmBtn.addEventListener("click", function () {
+            popup.style.display = "none";
+            form.submit();
+        });
+
+        cancelBtn.addEventListener("click", function () {
+            popup.style.display = "none";
+        });
+
+    </script>
+
+    </div>
+
+</body>
+
+</html>

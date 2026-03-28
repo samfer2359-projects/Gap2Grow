@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'db.php';
+require_once 'db.php';
 if (!isset($_SESSION['user_id'])) {
     die("User not logged in");
 }
@@ -16,15 +16,16 @@ if(empty($skill_id)){
 $sql = "UPDATE user_skills
         SET skill_type = :skill_type,
             proficiency = :proficiency
-        WHERE skill_id = :skill_id";
+        WHERE skill_id = :skill_id
+        AND user_id = :user_id";
 
 $stmt = $pdo->prepare($sql);
 
 $stmt->execute([
     ':skill_type' => $skill_type,
     ':proficiency' => $proficiency,
-    ':skill_id' => $skill_id
+    ':skill_id' => $skill_id,
+    ':user_id' => $_SESSION['user_id']
 ]);
-
 echo "Skill updated successfully";
 ?>

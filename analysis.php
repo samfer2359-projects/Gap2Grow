@@ -1,4 +1,10 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
 
 $conn = pg_connect("host=localhost dbname=gap2grow user=postgres password=root");
 
@@ -6,14 +12,15 @@ $result = null;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $user_id = $_POST["user_id"];
+    $user_id = $_SESSION['user_id'];   // ✅ from session (not form)
     $job_title = $_POST["job_title"];
 
     // Run Python Script
-    $command = "python module2.py $user_id \"$job_title\"";
-    shell_exec($command);
-    shell_exec("python recommendation_engine.py $user_id");
+   $user_id_safe = escapeshellarg($user_id);
+$job_title_safe = escapeshellarg($job_title);
 
+shell_exec("python module2.py $user_id_safe $job_title_safe");
+shell_exec("python recommendation_engine.py $user_id_safe");
     // Fetch latest result
     $query = "
         SELECT *
@@ -49,8 +56,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <form method="POST">
 
-<label>User ID</label>
-<input type="number" name="user_id" required>
 
 <label>Select Job Role</label>
 <select name="job_title">

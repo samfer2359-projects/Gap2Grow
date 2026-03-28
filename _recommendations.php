@@ -1,6 +1,12 @@
 <?php
-require_once "db.php";
 session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
+require_once "db.php";
 
 $user_id = $_SESSION['user_id'];
 

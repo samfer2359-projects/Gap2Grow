@@ -1,6 +1,7 @@
 <?php
 session_start();
-require 'db.php';
+require_once 'db.php';
+
 if (!isset($_SESSION['user_id'])) {
     die("User not logged in");
 }
@@ -16,5 +17,6 @@ $stmt->execute([':user_id' => $user_id]);
 
 $skills = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+header('Content-Type: application/json');
 echo json_encode($skills);
 ?>

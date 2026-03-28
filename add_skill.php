@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'db.php';
+require_once 'db.php';
 if (!isset($_SESSION['user_id'])) {
     die("User not logged in");
 }

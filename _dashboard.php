@@ -10,12 +10,6 @@ $user_id = $_SESSION['user_id'];
 
 require_once "db.php";
 ?>
-<?php
-require_once "db.php";
-
-
-session_start();
-$user_id = $_SESSION['user_id'];
 
 
 

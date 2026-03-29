@@ -3,7 +3,7 @@
 $host = "localhost";
 $dbname = "gap2grow";
 $user = "postgres";
-$password = "root";
+$password = "1111";
 
 try {
     $pdo = new PDO("pgsql:host=$host;dbname=$dbname", $user, $password);

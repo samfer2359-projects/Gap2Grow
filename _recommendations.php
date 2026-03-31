@@ -1,16 +1,21 @@
 <?php
 session_start();
+require_once "db.php";
 
+// ---------------------------
+// SESSION CHECK
+// ---------------------------
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.html");
     exit();
 }
 
-require_once "db.php";
-
 $user_id = $_SESSION['user_id'];
+$username = isset($_SESSION['name']) ? $_SESSION['name'] : "User";
 
-// Fetch recommendations for user
+// ---------------------------
+// FETCH RECOMMENDATIONS
+// ---------------------------
 $stmt = $pdo->prepare("
     SELECT recommendation_id,
            skill_name,
@@ -25,7 +30,9 @@ $stmt = $pdo->prepare("
 $stmt->execute([$user_id]);
 $recommendations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch latest learning roadmap for user
+// ---------------------------
+// FETCH LATEST ROADMAP
+// ---------------------------
 $stmt = $pdo->prepare("
     SELECT roadmap_text
     FROM learning_roadmaps
@@ -35,29 +42,31 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$user_id]);
 $roadmap = $stmt->fetchColumn();
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>Learning Recommendations | Gap2Grow</title>
-    <link rel="stylesheet" href="_style.css" />
+    <link rel="stylesheet" href="_style.css">
 </head>
 <body>
 
+<!-- ========================= -->
+<!-- NAVBAR -->
+<!-- ========================= -->
 <nav class="navbar">
     <div class="logo">Gap2Grow</div>
     <ul class="nav-links">
-        <li><a href="welcome.html">Home</a></li>
-        <li><a href="education.html">Education Module</a></li>
-        <li><a href="progress.html">My Progress</a></li>
+        <li><a href="welcome.php">Home</a></li>
+        <li><a href="_dashboard.php">Dashboard</a></li>
+        <li><a href="_recommendations.php">My Progress</a></li>
         <li><a href="about.html">About</a></li>
     </ul>
     <div class="user-info">
-        <span>Welcome, User!</span>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+        <span>Welcome, <?= htmlspecialchars($username) ?>!</span>
+        <a href="logout.php"><button class="logout-btn">Logout</button></a>
     </div>
 </nav>
 
@@ -65,9 +74,7 @@ $roadmap = $stmt->fetchColumn();
 
     <div class="welcome-box">
         <h1>📘 My Learning Recommendations</h1>
-        <p>
-            Based on your skill gap analysis, here are your personalized learning resources to improve your career readiness.
-        </p>
+        <p>Based on your skill gap analysis, here are your personalized learning resources to improve your career readiness.</p>
     </div>
 
     <?php if ($roadmap): ?>
@@ -99,14 +106,15 @@ $roadmap = $stmt->fetchColumn();
                             <td><?= htmlspecialchars($rec['resource_title']) ?></td>
                             <td><?= htmlspecialchars($rec['difficulty']) ?></td>
                             <td>
-                                <a class="btn primary-btn" href="<?= htmlspecialchars($rec['resource_link']) ?>" target="_blank" rel="noopener noreferrer">
-                                    Start Learning
-                                </a>
+                                <a class="btn primary-btn" href="<?= htmlspecialchars($rec['resource_link']) ?>" target="_blank" rel="noopener noreferrer">Start Learning</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <div style="text-align:center; margin-top:20px;">
+                <a href="_dashboard.php" class="primary-btn">📊 View My Progress</a>
+            </div>
         <?php else: ?>
             <p style="text-align:center; padding:30px; font-weight:600; color:#ef4444;">
                 🚫 No recommendations available yet.<br>
@@ -120,13 +128,6 @@ $roadmap = $stmt->fetchColumn();
 <footer class="main-footer">
     © 2026 Gap2Grow | Turning Potential into Progress 🌱
 </footer>
-
-<script>
-function logout() {
-    // Example logout redirect - replace with your logout PHP script
-    window.location.href = 'logout.php';
-}
-</script>
 
 </body>
 </html>

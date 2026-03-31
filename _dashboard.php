@@ -1,20 +1,31 @@
 <?php
 session_start();
+require_once "db.php";
 
+// ---------------------------
+// SESSION CHECK
+// ---------------------------
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.html");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
+$username = isset($_SESSION['name']) ? $_SESSION['name'] : "User";
 
-require_once "db.php";
-?>
+// ---------------------------
+// REDIRECT IF NO SKILLS
+// ---------------------------
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM user_skills WHERE user_id = :uid");
+$stmt->execute([':uid' => $user_id]);
+if ($stmt->fetchColumn() == 0) {
+    header("Location: skill_form.html");
+    exit();
+}
 
-
-
-   //FETCH CAREER READINESS SCORE
-
+// ---------------------------
+// FETCH CAREER READINESS
+// ---------------------------
 $stmt = $pdo->prepare("
     SELECT gap_score
     FROM skill_gap_results
@@ -23,11 +34,11 @@ $stmt = $pdo->prepare("
     LIMIT 1
 ");
 $stmt->execute([$user_id]);
-
 $readiness = (int)($stmt->fetchColumn() ?? 0);
 
-
-   // FETCH PROGRESS SUMMARY
+// ---------------------------
+// FETCH PROGRESS SUMMARY
+// ---------------------------
 $stmt = $pdo->prepare("
     SELECT
         COUNT(*) FILTER (WHERE status = 'Completed')   AS completed,
@@ -38,22 +49,17 @@ $stmt = $pdo->prepare("
     WHERE user_id = ?
 ");
 $stmt->execute([$user_id]);
-
 $summary = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $completed   = (int)($summary['completed'] ?? 0);
 $in_progress = (int)($summary['in_progress'] ?? 0);
 $pending     = (int)($summary['pending'] ?? 0);
 $total       = (int)($summary['total'] ?? 0);
+$completion_percent = $total > 0 ? round(($completed / $total) * 100) : 0;
 
-$completion_percent = $total > 0
-    ? round(($completed / $total) * 100)
-    : 0;
-
-
-
-   // FETCH SKILL PROGRESS
-
+// ---------------------------
+// FETCH SKILL PROGRESS
+// ---------------------------
 $stmt = $pdo->prepare("
     SELECT r.skill_name, up.progress_percent
     FROM user_progress up
@@ -62,12 +68,10 @@ $stmt = $pdo->prepare("
     WHERE up.user_id = ?
 ");
 $stmt->execute([$user_id]);
-
 $skills = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $labels = [];
 $values = [];
-
 foreach ($skills as $row) {
     $labels[] = $row['skill_name'];
     $values[] = (int)$row['progress_percent'];
@@ -82,18 +86,27 @@ foreach ($skills as $row) {
     <link rel="stylesheet" href="_style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
 
-
-<div class="header">
-    <h1>Gap2Grow</h1>
-    <p>Learning Progress Dashboard</p>
-</div>
+<!-- ========================= -->
+<!-- NAVBAR -->
+<!-- ========================= -->
+<nav class="navbar">
+    <div class="logo">Gap2Grow</div>
+    <ul class="nav-links">
+        <li><a href="welcome.php">Home</a></li>
+        <li><a href="_dashboard.php">Dashboard</a></li>
+        <li><a href="_recommendations.php">My Progress</a></li>
+        <li><a href="about.html">About</a></li>
+    </ul>
+    <div class="user-info">
+        <span>Welcome, <?= htmlspecialchars($username) ?>!</span>
+        <a href="logout.php"><button class="logout-btn">Logout</button></a>
+    </div>
+</nav>
 
 <div class="container">
 
-    
     <div class="card intro-card">
         <h3>📊 My Progress Dashboard</h3>
         <p>
@@ -105,15 +118,11 @@ foreach ($skills as $row) {
 
     <div class="grid">
 
-  
         <div class="card">
             <h4>Overall Skill Completion</h4>
-            <div class="kpi-number">
-                <?= $completion_percent ?>%
-            </div>
+            <div class="kpi-number"><?= $completion_percent ?>%</div>
         </div>
 
-      
         <div class="card">
             <h4>Career Readiness</h4>
             <div class="chart-box">
@@ -121,7 +130,6 @@ foreach ($skills as $row) {
             </div>
         </div>
 
-        
         <div class="card">
             <h4>Status Distribution</h4>
             <div class="chart-box">
@@ -129,7 +137,6 @@ foreach ($skills as $row) {
             </div>
         </div>
 
-      
         <div class="card">
             <h4>Skill Progress</h4>
             <div class="chart-box">
@@ -144,11 +151,8 @@ foreach ($skills as $row) {
     © 2026 Gap2Grow | Skill Gap Analysis Platform
 </div>
 
-
 <script>
-
 const readinessValue = <?= $readiness ?>;
-
 
 new Chart(document.getElementById('readinessChart'), {
     type: 'doughnut',
@@ -164,16 +168,12 @@ new Chart(document.getElementById('readinessChart'), {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '75%',
-        plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false }
-        }
+        plugins: { legend: { display: false }, tooltip: { enabled: false } }
     },
     plugins: [{
         id: 'centerText',
         beforeDraw(chart) {
             const { width, height, ctx } = chart;
-
             ctx.save();
             ctx.font = `600 ${height / 5}px Segoe UI`;
             ctx.fillStyle = "#111827";
@@ -183,8 +183,6 @@ new Chart(document.getElementById('readinessChart'), {
         }
     }]
 });
-
-
 
 new Chart(document.getElementById('statusChart'), {
     type: 'pie',
@@ -198,15 +196,9 @@ new Chart(document.getElementById('statusChart'), {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
+        plugins: { legend: { position: 'bottom' } }
     }
 });
-
-
 
 new Chart(document.getElementById('skillChart'), {
     type: 'bar',
@@ -222,19 +214,10 @@ new Chart(document.getElementById('skillChart'), {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 100,
-                ticks: { stepSize: 20 }
-            }
-        },
-        plugins: {
-            legend: { display: false }
-        }
+        scales: { y: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } },
+        plugins: { legend: { display: false } }
     }
 });
-
 </script>
 
 </body>

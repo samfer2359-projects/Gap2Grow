@@ -98,3 +98,17 @@ CREATE TABLE learning_roadmaps (
     roadmap_text TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+ALTER TABLE user_skills
+DROP CONSTRAINT user_skills_skill_type_check;
+
+ALTER TABLE user_skills
+ADD CONSTRAINT user_skills_skill_type_check
+CHECK (skill_type IN ('Education','Job','Experience'));
+
+ALTER TABLE users
+ADD COLUMN target_job VARCHAR(100);
+
+ALTER TABLE user_skills
+ADD CONSTRAINT user_skill_unique UNIQUE (user_id, skill_name);

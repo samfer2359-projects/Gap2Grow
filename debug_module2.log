@@ -1,0 +1,1 @@
+{"status": "success", "user_id": 7, "job_title": "Data Analyst", "readiness_score": 20, "education_skill_upgrade_set": {"matched": [], "partial": [], "missing": ["excel", "statistics", "data visualization"]}, "job_finding_skill_set": {"matched": [], "partial": ["python", "sql"], "missing": []}}

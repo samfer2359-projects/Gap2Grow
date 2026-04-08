@@ -2,9 +2,9 @@
 session_start();
 require_once "db.php";
 
-// ---------------------------
+
 // SESSION CHECK
-// ---------------------------
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.html");
     exit();
@@ -13,9 +13,9 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $username = isset($_SESSION['name']) ? $_SESSION['name'] : "User";
 
-// ---------------------------
+
 // FETCH RECOMMENDATIONS
-// ---------------------------
+
 $stmt = $pdo->prepare("
     SELECT recommendation_id,
            skill_name,
@@ -30,9 +30,9 @@ $stmt = $pdo->prepare("
 $stmt->execute([$user_id]);
 $recommendations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ---------------------------
+
 // FETCH LATEST ROADMAP
-// ---------------------------
+
 $stmt = $pdo->prepare("
     SELECT roadmap_text
     FROM learning_roadmaps
@@ -53,9 +53,9 @@ $roadmap = $stmt->fetchColumn();
 </head>
 <body>
 
-<!-- ========================= -->
+
 <!-- NAVBAR -->
-<!-- ========================= -->
+
 <nav class="navbar">
     <div class="logo">Gap2Grow</div>
     <ul class="nav-links">
@@ -79,7 +79,7 @@ $roadmap = $stmt->fetchColumn();
 
     <?php if ($roadmap): ?>
         <div class="card roadmap-card">
-            <h3>🗺 4-Week Learning Roadmap</h3>
+            <h3>🗺 Week wise Learning Roadmap</h3>
             <div style="line-height: 1.6; font-size: 16px;">
                 <?= nl2br(htmlspecialchars(trim($roadmap))) ?>
             </div>

@@ -112,3 +112,7 @@ ADD COLUMN target_job VARCHAR(100);
 
 ALTER TABLE user_skills
 ADD CONSTRAINT user_skill_unique UNIQUE (user_id, skill_name);
+
+ALTER TABLE user_skills
+ADD COLUMN status VARCHAR(20) DEFAULT 'Incomplete'
+CHECK (status IN ('Incomplete','In Progress','Completed'));

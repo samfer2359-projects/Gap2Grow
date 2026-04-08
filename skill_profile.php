@@ -33,11 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
 
         $skill_stmt = $pdo->prepare("
-            INSERT INTO user_skills (user_id, skill_name, skill_type, proficiency)
-            VALUES (:user_id, :skill_name, :skill_type, :proficiency)
-            ON CONFLICT (user_id, skill_name) 
-            DO UPDATE SET proficiency = EXCLUDED.proficiency
-        ");
+    INSERT INTO user_skills (user_id, skill_name, skill_type, proficiency)
+    VALUES (:user_id, :skill_name, :skill_type, :proficiency)
+    ON CONFLICT (user_id, skill_name) 
+    DO UPDATE SET 
+        skill_type = EXCLUDED.skill_type,
+        proficiency = EXCLUDED.proficiency
+");
 
         foreach ($skills as $skill) {
             $skill_stmt->execute([

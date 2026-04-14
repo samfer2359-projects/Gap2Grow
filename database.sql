@@ -113,6 +113,31 @@ ADD COLUMN target_job VARCHAR(100);
 ALTER TABLE user_skills
 ADD CONSTRAINT user_skill_unique UNIQUE (user_id, skill_name);
 
+
 ALTER TABLE user_skills
 ADD COLUMN status VARCHAR(20) DEFAULT 'Incomplete'
 CHECK (status IN ('Incomplete','In Progress','Completed'));
+
+ALTER TABLE skill_gap_results ADD COLUMN run_id UUID DEFAULT gen_random_uuid();
+
+ALTER TABLE job_roles ADD COLUMN job_key VARCHAR(100);
+
+UPDATE job_roles SET job_key =
+LOWER(REPLACE(REPLACE(job_title, ' ', '_'), '/', '_'));
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+ALTER TABLE recommendations ADD COLUMN run_id UUID;
+
+UPDATE user_skills
+SET skill_name = LOWER(TRIM(skill_name));
+
+UPDATE job_required_skills
+SET skill_name = LOWER(TRIM(skill_name));
+
+
+ALTER TABLE recommendations ADD COLUMN job_id INT;
+
+SET client_encoding TO 'UTF8';
+
+ALTER DATABASE gap2grow SET client_encoding TO 'UTF8';

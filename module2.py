@@ -1,136 +1,132 @@
 import psycopg2
 import json
 import sys
-import traceback
+import uuid
 from psycopg2.extras import RealDictCursor
-import io
-import logging
 
-# UTF-8 output
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-# Logging to file instead of stdout
-logging.basicConfig(filename="module2.log", level=logging.DEBUG, format="%(asctime)s %(message)s")
+class SkillGapAnalyzer:
 
-def get_connection():
-    try:
-        conn = psycopg2.connect(
+    def __init__(self, user_id, job_id):
+        self.user_id = int(user_id)
+        self.job_id = int(job_id)
+        self.run_id = str(uuid.uuid4())
+
+        self.conn = psycopg2.connect(
             dbname="gap2grow",
             user="postgres",
             password="root",
             host="localhost",
             port="5432"
         )
-        return conn
-    except Exception as e:
-        logging.error("Database connection failed", exc_info=True)
-        raise
-
-class SkillGapAnalyzer:
-    def __init__(self, user_id: int, job_title: str):
-        self.user_id = user_id
-        self.job_title = job_title.strip()
-        self.conn = get_connection()
         self.cursor = self.conn.cursor(cursor_factory=RealDictCursor)
 
-    def user_exists(self) -> bool:
-        self.cursor.execute("SELECT 1 FROM users WHERE user_id = %s", (self.user_id,))
-        return self.cursor.fetchone() is not None
+    def normalize(self, text):
+        return text.strip().lower() if text else ""
 
-    def get_job_id(self):
-        self.cursor.execute("SELECT job_id FROM job_roles WHERE job_title = %s", (self.job_title,))
-        row = self.cursor.fetchone()
-        return row["job_id"] if row else None
+    def fetch_job(self):
+        self.cursor.execute(
+            "SELECT job_title FROM job_roles WHERE job_id=%s",
+            (self.job_id,)
+        )
+        return self.cursor.fetchone()
 
-    def fetch_user_skills(self) -> dict:
-        self.cursor.execute("SELECT skill_name, skill_type, proficiency FROM user_skills WHERE user_id = %s", (self.user_id,))
-        skills = {}
-        for row in self.cursor.fetchall():
-            try:
-                skills[row["skill_name"].lower()] = {
-                    "type": row["skill_type"] or "education",
-                    "level": int(row["proficiency"])
-                }
-            except Exception:
-                continue
-        return skills
+    def fetch_user_skills(self):
+        self.cursor.execute("""
+            SELECT skill_name, proficiency
+            FROM user_skills
+            WHERE user_id=%s
+        """, (self.user_id,))
 
-    def fetch_job_skills(self, job_id: int) -> list:
-        self.cursor.execute("SELECT skill_name, required_level FROM job_required_skills WHERE job_id = %s", (job_id,))
-        skills = []
-        for row in self.cursor.fetchall():
-            try:
-                skills.append({"skill": row["skill_name"].lower(), "required_level": int(row["required_level"])})
-            except Exception:
-                continue
-        return skills
+        return {
+            self.normalize(r["skill_name"]): int(r["proficiency"] or 0)
+            for r in self.cursor.fetchall()
+        }
 
-    def analyze(self) -> dict:
-        if not self.user_exists():
-            return {"status": "error", "message": "User not found"}
+    def fetch_job_skills(self):
+        self.cursor.execute("""
+            SELECT skill_name, required_level
+            FROM job_required_skills
+            WHERE job_id=%s
+        """, (self.job_id,))
 
-        job_id = self.get_job_id()
-        if not job_id:
-            return {"status": "error", "message": "Job role not found"}
+        return [
+            {
+                "skill": self.normalize(r["skill_name"]),
+                "level": int(r["required_level"] or 0)
+            }
+            for r in self.cursor.fetchall()
+        ]
 
+    def save_result(self, matched, missing, score):
+        self.cursor.execute("""
+            INSERT INTO skill_gap_results
+            (user_id, job_id, matched_skills, missing_skills, gap_score, run_id)
+            VALUES (%s,%s,%s,%s,%s,%s)
+        """, (
+            self.user_id,
+            self.job_id,
+            json.dumps(matched),
+            json.dumps(missing),
+            int(score),
+            self.run_id
+        ))
+        self.conn.commit()
+
+    def analyze(self):
+
+        job = self.fetch_job()
+        if not job:
+            return {"status": "error", "message": "Invalid job_id"}
+
+        job_skills = self.fetch_job_skills()
         user_skills = self.fetch_user_skills()
-        job_skills = self.fetch_job_skills(job_id)
-        if not job_skills:
-            return {"status": "error", "message": "No skills defined for this job role"}
 
-        education = {"matched": [], "partial": [], "missing": []}
-        job = {"matched": [], "partial": [], "missing": []}
-        total_score = 0
-        total_required = len(job_skills)
+        if not job_skills:
+            return {"status": "error", "message": "No job skills found"}
+
+        matched = []
+        missing = []
+        score = 0
 
         for req in job_skills:
             skill = req["skill"]
-            required_level = req["required_level"]
-            user_skill = user_skills.get(skill)
-            skill_type = user_skill["type"] if user_skill else "education"
-            bucket = education if skill_type == "education" else job
+            level = req["level"]
 
-            if user_skill:
-                user_level = user_skill["level"]
-                if user_level >= required_level:
-                    bucket["matched"].append(skill)
-                    total_score += 1
-                elif required_level - user_level <= 2:
-                    bucket["partial"].append(skill)
-                    total_score += 0.5
-                else:
-                    bucket["missing"].append(skill)
+            user_level = user_skills.get(skill, 0)
+
+            if user_level >= level:
+                matched.append(skill)
+                score += 1
             else:
-                bucket["missing"].append(skill)
+                missing.append(skill)
 
-        readiness = round((total_score / total_required) * 100)
-        self.save_result(job_id, education, job, readiness)
+        readiness = round((score / len(job_skills)) * 100)
+
+        self.save_result(matched, missing, readiness)
 
         return {
-            "status": "success",
-            "user_id": self.user_id,
-            "job_title": self.job_title,
-            "readiness_score": readiness,
-            "education_skill_upgrade_set": education,
-            "job_finding_skill_set": job
-        }
+    "status": "success",
+    "run_id": self.run_id,
+    "user_id": self.user_id,
+    "job_id": self.job_id,
+    "job_title": job["job_title"],
+    "gap_score": readiness,
+    "matched_skills": matched,
+    "missing_skills": missing
+}
 
-    def save_result(self, job_id, edu, job, score):
-        matched = edu["matched"] + job["matched"]
-        missing = edu["missing"] + job["missing"]
-        self.cursor.execute(
-            "INSERT INTO skill_gap_results (user_id, job_id, matched_skills, missing_skills, gap_score) VALUES (%s, %s, %s, %s, %s)",
-            (self.user_id, job_id, json.dumps(matched), json.dumps(missing), score)
-        )
-        self.conn.commit()
 
 if __name__ == "__main__":
     try:
-        user_id = int(sys.argv[1])
-        job_title = sys.argv[2]
-        analyzer = SkillGapAnalyzer(user_id, job_title)
-        result = analyzer.analyze()
-        print(json.dumps(result))
+        user_id = sys.argv[1]
+        job_id = sys.argv[2]
+
+        analyzer = SkillGapAnalyzer(user_id, job_id)
+        print(json.dumps(analyzer.analyze()))
+
     except Exception as e:
-        logging.error("FATAL ERROR", exc_info=True)
-        print(json.dumps({"status":"error","message": str(e)}))
+        print(json.dumps({
+            "status": "error",
+            "message": str(e)
+        }))

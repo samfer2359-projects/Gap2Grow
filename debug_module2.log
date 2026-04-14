@@ -1,1 +1,1 @@
-{"status": "success", "user_id": 8, "job_title": "Software Developer", "readiness_score": 25, "education_skill_upgrade_set": {"matched": [], "partial": [], "missing": ["java"]}, "job_finding_skill_set": {"matched": [], "partial": ["python"], "missing": []}}
+{"status": "success", "user_id": 10, "job_id": 4, "job_title": "AI / ML Engineer", "readiness_score": 0, "matched_skills": [], "missing_skills": ["python", "statistics"]}

@@ -50,7 +50,7 @@ class RecommendationEngine:
         for skill in missing_skills:
             db_resource = self.fetch_resource_from_db(skill)
             if db_resource:
-                # ✅ Use DB resource
+                #  Use DB resource
                 recommendations.append({
                 "skill_name": skill,
                 "resource_type": db_resource["platform"],
@@ -60,7 +60,7 @@ class RecommendationEngine:
                 "run_id": self.run_id
             })
             else:
-                # ⚠️ Fallback to Google
+                #  Fallback to Google
                 recommendations.append({
                 "skill_name": skill,
                 "resource_type": "Google",

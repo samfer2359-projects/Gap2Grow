@@ -35,14 +35,35 @@ class RecommendationEngine:
             raise Exception("Gap result not found")
 
         return row
+    def fetch_resource_from_db(self, skill):
+        self.cursor.execute("""
+        SELECT *
+        FROM skill_resources
+        WHERE LOWER(skill_name) = LOWER(%s)
+        LIMIT 1
+    """, (skill,))
+        return self.cursor.fetchone()
 
     def generate_recommendations(self, missing_skills):
         recommendations = []
 
         for skill in missing_skills:
-            recommendations.append({
+            db_resource = self.fetch_resource_from_db(skill)
+            if db_resource:
+                # ✅ Use DB resource
+                recommendations.append({
                 "skill_name": skill,
-                "resource_type": "Platform",
+                "resource_type": db_resource["platform"],
+                "resource_title": db_resource["resource_title"],
+                "resource_link": db_resource["resource_link"],
+                "difficulty": db_resource["difficulty"],
+                "run_id": self.run_id
+            })
+            else:
+                # ⚠️ Fallback to Google
+                recommendations.append({
+                "skill_name": skill,
+                "resource_type": "Google",
                 "resource_title": f"Learn {skill}",
                 "resource_link": f"https://www.google.com/search?q={skill}",
                 "difficulty": "Beginner",

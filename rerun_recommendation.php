@@ -38,6 +38,22 @@ if ($return2 === 0) {
     file_put_contents($log_file, "[".date('Y-m-d H:i:s')."] ERROR: module2 failed, skipping module3\n", FILE_APPEND);
 }
 
+// Get latest run_id after analysis
+$stmt = $pdo->prepare("
+    SELECT run_id 
+    FROM skill_gap_results
+    WHERE user_id = ?
+    ORDER BY analyzed_at DESC
+    LIMIT 1
+");
+$stmt->execute([$user_id]);
+
+$latest_run_id = $stmt->fetchColumn();
+
+if ($latest_run_id) {
+    $_SESSION['last_run_id'] = $latest_run_id;
+}
+
 // Check if recommendations exist
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM recommendations WHERE user_id = ?");
 $stmt->execute([$user_id]);

@@ -10,12 +10,30 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['name'] ?? "User";
 
+// STEP 1: Try session
 $run_id = $_SESSION['last_run_id'] ?? null;
 
+// STEP 2: If missing then fetch latest from DB
 if (!$run_id) {
-    die("<p style='color:red;text-align:center;padding:20px;'>
-        No analysis run found. Please complete skill analysis again.
-    </p>");
+
+    $stmt = $pdo->prepare("
+        SELECT run_id
+        FROM skill_gap_results
+        WHERE user_id = ?
+        ORDER BY analyzed_at DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$user_id]);
+
+    $run_id = $stmt->fetchColumn();
+
+    // STEP 3: If found then restore session
+    if ($run_id) {
+    $_SESSION['last_run_id'] = $run_id;
+} else {
+    header("Location: skill_form.html");
+    exit();
+}
 }
 
 /* GET JOB */

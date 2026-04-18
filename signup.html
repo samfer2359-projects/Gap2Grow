@@ -1,36 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
     <link rel="stylesheet" href="login.css">
-
 </head>
 
 <body>
-    <div class="page-wrapper">
-        <p class="top-message">Your growth story starts here 💜</p>
-        <div class="login-container">
-            <h2>Create Account</h2>
-            <form action="signup.php" method="POST">
+<div class="page-wrapper">
 
-             <label>Full Name</label>
-             <input type="text" name="name" required>
+    <p class="top-message">Your growth story starts here 💜</p>
 
-             <label>Email</label>
-             <input type="email" name="email" required>
+    <div class="login-container">
+        <h2>Create Account</h2>
 
-             <label>Password</label>
-             <input type="password" name="password" required>
+        <!-- ERROR -->
+        <p id="error-msg" style="color:red;text-align:center;"></p>
 
-             <button type="submit">Sign Up</button>
+        <form action="signup.php" method="POST" onsubmit="return validateSignup()">
 
-            </form>
+            <label>Full Name</label>
+            <input type="text" name="name" id="name" required>
 
-            <p>Already have an account? <a href="login.html">Login</a></p>
-        </div>
+            <label>Email</label>
+            <input type="email" name="email" id="email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" id="password" required>
+
+            <button type="submit">Sign Up</button>
+
+        </form>
+
+        <p>Already have an account? <a href="login.html">Login</a></p>
     </div>
-</body>
 
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+// Error display
+if (params.get("error") === "exists") {
+    document.getElementById("error-msg").innerText = "Email already registered";
+}
+
+// Preserve inputs
+if (params.get("email")) {
+    document.getElementById("email").value = params.get("email");
+}
+if (params.get("name")) {
+    document.getElementById("name").value = params.get("name");
+}
+
+// Validation
+function validateSignup() {
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value.trim();
+
+    if (!name || !email || !password) {
+        document.getElementById("error-msg").innerText = "All fields are required";
+        return false;
+    }
+
+    if (password.length < 6) {
+        document.getElementById("error-msg").innerText = "Password must be at least 6 characters";
+        return false;
+    }
+
+    return true;
+}
+</script>
+
+</body>
 </html>

@@ -230,7 +230,7 @@ The project uses the following main tables:
 
 # Website Images
 
-```
+
 ## Home Page
 ![Home Page](ui/home.png)
 
@@ -256,4 +256,3 @@ The project uses the following main tables:
 ## Recommendation Page
 ![Recommendations](ui/r1.png)
 ![Recommendations](ui/r2.png)
-```

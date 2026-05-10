@@ -4,41 +4,59 @@ require_once "db.php";
 
 header('Content-Type: application/json');
 
+
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(["status" => "error", "message" => "Not logged in"]);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Not logged in"
+    ]);
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
 
-// Get target job
+
 $stmt = $pdo->prepare("SELECT target_job FROM users WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $target_job = $stmt->fetchColumn() ?? '';
 
-// Paths
+
 $python = "C:\\Python314\\python.exe";
-$module2 = __DIR__ . "\\module2.py";
-$module3 = __DIR__ . "\\recommendation_engine.py";
+$module2 = __DIR__ . "\\module2.py";                  // Skill gap analysis
+$module3 = __DIR__ . "\\recommendation_engine.py";   // Recommendations
+$module4 = __DIR__ . "\\roadmap_engine.py";          // Roadmap
 
 $log_file = __DIR__ . "\\rerun_recommendations.log";
-file_put_contents($log_file, "[".date('Y-m-d H:i:s')."] Starting rerun for user_id=$user_id\n", FILE_APPEND);
 
-// Run module2.py (analysis)
-$cmd2 = "\"$python\" \"$module2\" $user_id \"$target_job\" 2>&1";
-exec($cmd2, $output2, $return2);
-file_put_contents($log_file, "[".date('Y-m-d H:i:s')."] module2 output:\n" . implode("\n", $output2) . "\nReturn: $return2\n", FILE_APPEND);
-
-// Run module3.py (recommendations) only if analysis succeeded
-if ($return2 === 0) {
-    $cmd3 = "\"$python\" \"$module3\" $user_id 2>&1";
-    exec($cmd3, $output3, $return3);
-    file_put_contents($log_file, "[".date('Y-m-d H:i:s')."] module3 output:\n" . implode("\n", $output3) . "\nReturn: $return3\n", FILE_APPEND);
-} else {
-    file_put_contents($log_file, "[".date('Y-m-d H:i:s')."] ERROR: module2 failed, skipping module3\n", FILE_APPEND);
+function log_msg($msg) {
+    global $log_file;
+    file_put_contents(
+        $log_file,
+        "[" . date('Y-m-d H:i:s') . "] $msg\n",
+        FILE_APPEND
+    );
 }
 
-// Get latest run_id after analysis
+log_msg("=== START RERUN for user_id=$user_id ===");
+
+
+$cmd2 = "\"$python\" \"$module2\" $user_id \"$target_job\" 2>&1";
+exec($cmd2, $output2, $return2);
+
+log_msg("module2 output:\n" . implode("\n", $output2));
+log_msg("module2 return code: $return2");
+
+if ($return2 !== 0) {
+    log_msg(" module2 failed. Aborting pipeline.");
+
+    echo json_encode([
+        "status" => "error",
+        "message" => "Skill analysis failed"
+    ]);
+    exit();
+}
+
+
 $stmt = $pdo->prepare("
     SELECT run_id 
     FROM skill_gap_results
@@ -48,19 +66,76 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$user_id]);
 
-$latest_run_id = $stmt->fetchColumn();
+$run_id = $stmt->fetchColumn();
 
-if ($latest_run_id) {
-    $_SESSION['last_run_id'] = $latest_run_id;
+if (!$run_id) {
+    log_msg(" No run_id found after analysis");
+
+    echo json_encode([
+        "status" => "error",
+        "message" => "Run ID not generated"
+    ]);
+    exit();
 }
 
-// Check if recommendations exist
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM recommendations WHERE user_id = ?");
-$stmt->execute([$user_id]);
+$_SESSION['last_run_id'] = $run_id;
+
+log_msg(" Using run_id = $run_id");
+
+
+$pdo->prepare("DELETE FROM recommendations WHERE run_id = ?")
+    ->execute([$run_id]);
+
+$pdo->prepare("DELETE FROM learning_roadmaps WHERE user_id = ?")
+    ->execute([$user_id]);
+
+
+$cmd3 = "\"$python\" \"$module3\" $run_id 2>&1";
+exec($cmd3, $output3, $return3);
+
+log_msg("recommendation_engine output:\n" . implode("\n", $output3));
+log_msg("recommendation_engine return code: $return3");
+
+if ($return3 !== 0) {
+    log_msg(" recommendation engine failed");
+
+    echo json_encode([
+        "status" => "error",
+        "message" => "Recommendation generation failed"
+    ]);
+    exit();
+}
+
+
+$cmd4 = "\"$python\" \"$module4\" $run_id 2>&1";
+exec($cmd4, $output4, $return4);
+
+log_msg("roadmap_engine output:\n" . implode("\n", $output4));
+log_msg("roadmap_engine return code: $return4");
+
+if ($return4 !== 0) {
+    log_msg(" roadmap engine failed");
+
+    echo json_encode([
+        "status" => "error",
+        "message" => "Roadmap generation failed"
+    ]);
+    exit();
+}
+
+
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM recommendations WHERE run_id = ?");
+$stmt->execute([$run_id]);
 $rec_count = (int)$stmt->fetchColumn();
 
-if ($rec_count > 0 && $return2 === 0 && $return3 === 0) {
-    echo json_encode(["status" => "success", "message" => "Recommendations updated", "count" => $rec_count]);
-} else {
-    echo json_encode(["status" => "error", "message" => "Recommendations not updated"]);
-}
+log_msg(" Completed successfully. Recommendations count: $rec_count");
+
+
+echo json_encode([
+    "status" => "success",
+    "message" => "Recommendations & roadmap updated",
+    "run_id" => $run_id,
+    "recommendations" => $rec_count
+]);
+
+log_msg("=== END RERUN ===\n");

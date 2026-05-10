@@ -232,7 +232,7 @@ The project uses the following main tables:
 
 
 ## Home Page
-![Home Page](ui/home.jpeg)
+![Home Page](ui/home.jpg)
 
 ## Signup Page
 ![Signup Page](ui/signup1.png)

@@ -47,9 +47,9 @@ The platform compares user skills with industry-required skills and generates:
 ---
 
 # Team Members
-Esha Gadekar 
-Siddhi Kale
-Samantha Fernandes 
+- Esha Gadekar 
+- Siddhi Kale
+- Samantha Fernandes 
 
 ---
 

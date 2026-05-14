@@ -11,6 +11,39 @@ The platform compares user skills with industry-required skills and generates:
 
 ---
 
+
+# Website Images
+
+
+## Home Page
+![Home Page](ui/home.png)
+
+## Signup Page
+![Signup Page](ui/signup1.png)
+![Signup Page](ui/signup2.png)
+
+## Login Page
+![Login Page](ui/login1.png)
+![Login Page](ui/login2.png)
+
+## Skill Profile 
+![Skill Profile](ui/sp1.png)
+![Skill Profile](ui/sp2.png)
+![Skill Profile](ui/sp3.png)
+![Skill Profile](ui/sp4.png)
+![Skill Profile](ui/sp5.png)
+![Skill Profile](ui/sp6.png)
+
+## Dashboard
+![Dashboard](ui/d1.png)
+
+## Recommendation Page
+![Recommendations](ui/r1.png)
+![Recommendations](ui/r2.png)
+
+
+---
+
 # Features
 
 - User Authentication System
@@ -228,31 +261,7 @@ The project uses the following main tables:
 
 ---
 
-# Website Images
+## Project Status
 
-
-## Home Page
-![Home Page](ui/home.png)
-
-## Signup Page
-![Signup Page](ui/signup1.png)
-![Signup Page](ui/signup2.png)
-
-## Login Page
-![Login Page](ui/login1.png)
-![Login Page](ui/login2.png)
-
-## Skill Profile 
-![Skill Profile](ui/sp1.png)
-![Skill Profile](ui/sp2.png)
-![Skill Profile](ui/sp3.png)
-![Skill Profile](ui/sp4.png)
-![Skill Profile](ui/sp5.png)
-![Skill Profile](ui/sp6.png)
-
-## Dashboard
-![Dashboard](ui/d1.png)
-
-## Recommendation Page
-![Recommendations](ui/r1.png)
-![Recommendations](ui/r2.png)
+This project is currently configured for local development.  
+A production deployment version is planned as part of future improvements.
